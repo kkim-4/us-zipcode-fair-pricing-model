@@ -1,0 +1,7 @@
+city,state,latitude,longitude,YearMonth,Monthly_Avg_Temp
+New York,New York,40.7127837,-74.0059413,2016-01-01,55.2532
+Los Angeles,California,34.0522342,-118.2436849,2016-01-01,55.2532
+Chicago,Illinois,41.8781136,-87.6297982,2016-01-01,55.2532
+Houston,Texas,29.7604267,-95.3698028,2016-01-01,55.2532
+Philadelphia,Pennsylvania,39.9525839,-75.1652215,2016-01-01,55.2532
+Phoenix,Arizona,33.4483771,-112.0740373,2016-01-01,55.2532

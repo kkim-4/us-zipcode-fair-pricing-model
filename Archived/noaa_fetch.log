@@ -1,0 +1,36 @@
+2026-04-18 20:38:30,801 [INFO] Resuming — 0 cities already processed.
+2026-04-18 20:38:30,801 [INFO] Starting NOAA fetch for 1000 cities…
+2026-04-18 20:38:30,801 [INFO] [0 calls] Processing: New York, New York
+2026-04-18 20:38:32,601 [WARNING] No data returned for New York / GHCND:USC00282644 (status 200).
+2026-04-18 20:38:32,601 [INFO] [2 calls] Processing: Los Angeles, California
+2026-04-18 20:38:33,946 [WARNING] No data returned for Los Angeles / GHCND:USC00040080 (status 200).
+2026-04-18 20:38:33,947 [INFO] [4 calls] Processing: Chicago, Illinois
+2026-04-18 20:40:01,258 [INFO] Resuming — 0 cities already processed.
+2026-04-18 20:40:01,258 [INFO] Starting NOAA fetch for 1000 cities…
+2026-04-18 20:40:01,258 [INFO] [0 calls] Processing: New York, New York
+2026-04-18 20:40:03,120 [INFO] Saved 120 rows for New York via GHCND:USC00283704.
+2026-04-18 20:40:03,120 [INFO] [2 calls] Processing: Los Angeles, California
+2026-04-18 20:40:05,423 [INFO] Saved 31 rows for Los Angeles via GHCND:USC00040798.
+2026-04-18 20:40:05,423 [INFO] [5 calls] Processing: Chicago, Illinois
+2026-04-18 20:40:07,272 [INFO] Saved 105 rows for Chicago via GHCND:USC00111550.
+2026-04-18 20:40:07,272 [INFO] [7 calls] Processing: Houston, Texas
+2026-04-18 20:40:08,682 [INFO] Saved 114 rows for Houston via GHCND:USC00414333.
+2026-04-18 20:40:08,683 [INFO] [9 calls] Processing: Philadelphia, Pennsylvania
+2026-04-18 20:40:11,909 [WARNING] All 5 candidates empty for Philadelphia. Marking skipped.
+2026-04-18 20:40:11,909 [INFO] [15 calls] Processing: Phoenix, Arizona
+2026-04-18 20:40:15,483 [WARNING] All 5 candidates empty for Phoenix. Marking skipped.
+2026-04-18 20:40:15,484 [INFO] [21 calls] Processing: San Antonio, Texas
+2026-04-18 20:40:16,928 [INFO] Saved 64 rows for San Antonio via GHCND:USC00417947.
+2026-04-18 20:40:16,928 [INFO] [23 calls] Processing: San Diego, California
+2026-04-18 20:42:30,140 [INFO] Resuming — 5 cities already processed.
+2026-04-18 20:42:30,141 [INFO] Starting NOAA fetch for 1000 cities…
+2026-04-18 20:42:30,141 [INFO] [0 calls] Processing: Philadelphia, Pennsylvania
+2026-04-18 20:42:33,416 [INFO] TAVG sparse/missing for Philadelphia — trying TMAX+TMIN fallback…
+2026-04-18 20:42:39,292 [WARNING] No usable data found for Philadelphia. Marking skipped.
+2026-04-18 20:42:39,292 [INFO] [18 calls] Processing: Phoenix, Arizona
+2026-04-18 20:42:42,253 [INFO] TAVG sparse/missing for Phoenix — trying TMAX+TMIN fallback…
+2026-04-18 20:42:47,682 [WARNING] No usable data found for Phoenix. Marking skipped.
+2026-04-18 20:42:47,683 [INFO] [36 calls] Processing: San Diego, California
+2026-04-18 21:09:09,957 [INFO] Resuming — 0 anchors already done.
+2026-04-18 21:09:09,958 [INFO] Starting fetch for 306 anchors…
+2026-04-18 21:09:09,958 [INFO] [0 calls] 02180 — Stoneham, MA
