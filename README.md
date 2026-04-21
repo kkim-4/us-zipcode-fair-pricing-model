@@ -1,0 +1,1 @@
+This is part of a CS470 Data Mining Class Project to build an enhanced predictive model to try to predict listing price based on home value and various other engineered featured based on regional and socioeconomic factors. This predictive is model is used to build a classifier which we then use to color code a US map on fair pricing.
