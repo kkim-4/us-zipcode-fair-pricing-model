@@ -6,15 +6,14 @@ import requests
 import json
 import time
 
-NOAA_TOKEN = "AeRKiUhRNGkDvTlIbwEERVFEgXHTtWqo"   # ← paste your token here
+NOAA_TOKEN = "YOUR_NOAA_TOKEN_HERE"   
 HEADERS    = {"token": NOAA_TOKEN}
 
 STATION_URL = "https://www.ncei.noaa.gov/cdo-web/api/v2/stations"
 DATA_URL    = "https://www.ncei.noaa.gov/cdo-web/api/v2/data"
 
-CALL_DELAY = 0.5   # 400ms between every call → safely under 5 req/sec
+CALL_DELAY = 0.5   
 
-# ── change these to whichever city is failing ──
 CITY   = "Philadelphia"
 LAT    = 39.9526
 LON    = -75.1652
@@ -26,7 +25,7 @@ def show(label, data):
     print(f"\n{'='*60}")
     print(f"  {label}")
     print('='*60)
-    print(json.dumps(data, indent=2)[:3000])   # cap at 3000 chars so terminal doesn't flood
+    print(json.dumps(data, indent=2)[:3000])  
 
 def safe_get(session, url, retries=3, **kwargs):
     """GET with a mandatory delay, timeout retries, and 429 awareness."""
@@ -36,7 +35,7 @@ def safe_get(session, url, retries=3, **kwargs):
             res = session.get(url, **kwargs)
         except requests.exceptions.Timeout:
             print(f"  [!] Timeout (attempt {attempt}/{retries}) — retrying…")
-            time.sleep(2 ** attempt)   # 2s, 4s, 8s
+            time.sleep(2 ** attempt)   
             continue
         if res.status_code == 429:
             wait = int(res.headers.get("Retry-After", 60))
@@ -68,7 +67,7 @@ for datatypeid in ["TAVG", "TMAX", "TMIN"]:
             print("  ↳ No stations found at this radius.")
             continue
 
-        # Try pulling data from each station returned
+        
         for station in body["results"]:
             sid = station["id"]
             print(f"\n  >>> Data fetch: {sid} | mindate={station.get('mindate')} maxdate={station.get('maxdate')}")
@@ -83,6 +82,6 @@ for datatypeid in ["TAVG", "TMAX", "TMIN"]:
             }, timeout=15)
             show(f"Data ({datatypeid} @ {sid})", data_res.json())
 
-        break   # found stations at this radius — no need to widen further
+        break   
 
 print("\n\nDone. Paste the output above to diagnose the issue.")

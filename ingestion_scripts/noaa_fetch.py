@@ -5,10 +5,7 @@ import os
 import math
 import sys
 
-# ==========================================
-# 1. CONFIGURATION
-# ==========================================
-NOAA_TOKEN = "AeRKiUhRNGkDvTlIbwEERVFEgXHTtWqo" 
+NOAA_TOKEN = "noaa_token_here"
 HEADERS = {"token": NOAA_TOKEN}
 
 BASE_URL = "https://www.ncei.noaa.gov/cdo-web/api/v2"
@@ -22,9 +19,6 @@ CALL_DELAY = 1.2
 def calculate_distance(lat1, lon1, lat2, lon2):
     return math.sqrt((lat1 - lat2)**2 + (lon1 - lon2)**2)
 
-# ==========================================
-# 2. LOAD & RESUME
-# ==========================================
 df_anchors = pd.read_json('weather_anchors.json', dtype={'zip': str})
 df_anchors = df_anchors[~df_anchors['state_id'].isin(['PR', 'GU', 'VI', 'AS', 'MP'])].copy()
 
@@ -37,9 +31,6 @@ else:
     cols = ['ZIP_Code', 'city', 'state_id', 'station_id', 'YearMonth', 'TAVG']
     pd.DataFrame(columns=cols).to_csv(OUTPUT_FILE, index=False)
 
-# ==========================================
-# 3. ROBUST FETCH ENGINE
-# ==========================================
 print(f"Starting Robust Scrape. Shields active. Press Ctrl+C to stop.\n")
 
 try:
@@ -49,7 +40,6 @@ try:
 
         print(f"[{i+1}/{len(df_anchors)}] ZIP {zip_code} ({row['city']})")
 
-        # STEP 1: Search for stations (with error shield)
         s_params = {
             "extent": f"{row['lat']-0.8},{row['lng']-0.8},{row['lat']+0.8},{row['lng']+0.8}",
             "datasetid": "GSOM",
@@ -58,7 +48,7 @@ try:
         }
         
         s_res = None
-        for attempt in range(3): # Try 3 times before skipping
+        for attempt in range(3):
             time.sleep(CALL_DELAY)
             try:
                 resp = requests.get(SEARCH_URL, headers=HEADERS, params=s_params, timeout=20)
@@ -84,7 +74,6 @@ try:
                 candidates.append(s)
         candidates.sort(key=lambda x: (x['priority'], x['dist']))
 
-        # STEP 2: Pull Data (with error shield)
         data_secured = False
         for station in candidates[:5]:
             print(f"   Checking {station['id']}...", end="\r")

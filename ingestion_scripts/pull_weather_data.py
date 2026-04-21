@@ -5,9 +5,7 @@ import os
 import logging
 from datetime import datetime, timedelta
 
-# ==========================================
-# 1. Logging Setup
-# ==========================================
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
@@ -18,9 +16,7 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
-# ==========================================
-# 2. Configuration & Safety Limits
-# ==========================================
+
 NOAA_TOKEN = "NOAA_TOKEN"
 HEADERS = {"token": NOAA_TOKEN}
 
@@ -29,22 +25,19 @@ DATA_URL    = "https://www.ncei.noaa.gov/cdo-web/api/v2/data"
 OUTPUT_FILE = "noaa_official_monthly_weather.csv"
 
 MAX_CALLS_PER_DAY = 9800
-MAX_RETRIES       = 3       # Attempts per API call before giving up on a city
-BASE_BACKOFF      = 2       # Seconds — doubles on each retry (2, 4, 8…)
-MAX_BACKOFF       = 120     # Cap so we never wait more than 2 minutes on a retry
-CALL_DELAY        = 0.25    # Baseline pause between calls (~4 req/sec, safely under 5)
+MAX_RETRIES       = 3       
+BASE_BACKOFF      = 2       
+MAX_BACKOFF       = 120   
+CALL_DELAY        = 0.25    
 
 START_DATE = "2016-01-01"
 END_DATE   = "2025-12-31"
 
-# ==========================================
-# 3. Rate-Limit State
-# ==========================================
 calls_today  = 0
 window_start = time.monotonic()
 window_calls = 0
-WINDOW_SIZE  = 1.0   # 1-second rolling window
-WINDOW_LIMIT = 4     # Max calls allowed within that window
+WINDOW_SIZE  = 1.0  
+WINDOW_LIMIT = 4     
 
 def rate_limited_get(session: requests.Session, url: str, **kwargs) -> requests.Response:
     """
@@ -56,7 +49,7 @@ def rate_limited_get(session: requests.Session, url: str, **kwargs) -> requests.
     global calls_today, window_start, window_calls
 
     for attempt in range(1, MAX_RETRIES + 1):
-        # --- Rolling window throttle ---
+
         now = time.monotonic()
         elapsed = now - window_start
         if elapsed >= WINDOW_SIZE:
@@ -70,7 +63,7 @@ def rate_limited_get(session: requests.Session, url: str, **kwargs) -> requests.
             window_start = time.monotonic()
             window_calls = 0
 
-        # --- Make the call ---
+
         try:
             response = session.get(url, **kwargs)
             calls_today  += 1
@@ -81,7 +74,7 @@ def rate_limited_get(session: requests.Session, url: str, **kwargs) -> requests.
             time.sleep(wait)
             continue
 
-        # --- Handle rate limit ---
+
         if response.status_code == 429:
             retry_after = int(response.headers.get("Retry-After", BASE_BACKOFF ** attempt))
             wait = min(retry_after, MAX_BACKOFF)
@@ -89,14 +82,12 @@ def rate_limited_get(session: requests.Session, url: str, **kwargs) -> requests.
             time.sleep(wait)
             continue
 
-        # --- Handle server errors (5xx) with backoff ---
         if response.status_code >= 500:
             wait = min(BASE_BACKOFF ** attempt, MAX_BACKOFF)
             log.warning(f"Server error {response.status_code} (attempt {attempt}/{MAX_RETRIES}). Retrying in {wait}s…")
             time.sleep(wait)
             continue
 
-        # --- Success or non-retryable error ---
         time.sleep(CALL_DELAY)
         return response
 
@@ -112,9 +103,6 @@ def sleep_until_tomorrow():
     time.sleep(wait)
 
 
-# ==========================================
-# 4. Checkpoint System
-# ==========================================
 df_cities = pd.read_json("cities.json")
 
 if os.path.exists(OUTPUT_FILE):
@@ -128,9 +116,7 @@ else:
         "station_id", "YearMonth", "Monthly_Avg_Temp"
     ]).to_csv(OUTPUT_FILE, index=False)
 
-# ==========================================
-# 5. Main Fetch Loop
-# ==========================================
+
 log.info(f"Starting NOAA fetch for {len(df_cities)} cities…")
 session = requests.Session()
 session.headers.update(HEADERS)
@@ -152,10 +138,7 @@ for _, row in df_cities.iterrows():
 
     lat, lon = float(row["latitude"]), float(row["longitude"])
 
-    # ----------------------------------------------------------
-    # STEP 1: Collect candidate stations for a given datatype,
-    #         sorted by overlap with our target date window.
-    # ----------------------------------------------------------
+
     def coverage_score(s):
         try:
             start        = datetime.fromisoformat(s.get("mindate", "9999-01-01"))
@@ -191,10 +174,7 @@ for _, row in df_cities.iterrows():
                 return []
         return []
 
-    # ----------------------------------------------------------
-    # STEP 2: Fetch data for all candidates; keep the one with
-    #         the most rows (best coverage), not just the first hit.
-    # ----------------------------------------------------------
+
     def fetch_datatype(datatypeid: str, candidate_ids: list[str]) -> pd.DataFrame | None:
         """
         Try every candidate station and return the DataFrame with the
@@ -233,12 +213,12 @@ for _, row in df_cities.iterrows():
 
         return best_df
 
-    # --- Try TAVG first ---
+
     tavg_candidates = get_candidates("TAVG")
     best_df         = fetch_datatype("TAVG", tavg_candidates) if tavg_candidates else None
 
-    # --- Fallback: compute (TMAX + TMIN) / 2 when TAVG is unavailable ---
-    if best_df is None or len(best_df) < 24:   # <2 years is not useful
+
+    if best_df is None or len(best_df) < 24:   
         log.info(f"TAVG sparse/missing for {city_name} — trying TMAX+TMIN fallback…")
 
         tmax_candidates = get_candidates("TMAX")
@@ -248,7 +228,7 @@ for _, row in df_cities.iterrows():
         df_tmin = fetch_datatype("TMIN", tmin_candidates) if tmin_candidates else None
 
         if df_tmax is not None and df_tmin is not None:
-            # Align on date and average
+
             tmax = df_tmax[["date", "value"]].rename(columns={"value": "TMAX"})
             tmin = df_tmin[["date", "value"]].rename(columns={"value": "TMIN"})
             merged = tmax.merge(tmin, on="date", how="inner")
@@ -258,8 +238,8 @@ for _, row in df_cities.iterrows():
                 best_df           = merged
                 log.info(f"TMAX+TMIN fallback yielded {len(merged)} rows for {city_name}.")
 
-    # --- Save whichever DataFrame won ---
-    if best_df is not None and len(best_df) >= 12:   # require at least 1 year
+
+    if best_df is not None and len(best_df) >= 12: 
         winning_station = best_df["station"].iloc[0]
         df_clean = pd.DataFrame({
             "city":             city_name,
@@ -278,9 +258,7 @@ for _, row in df_cities.iterrows():
         log.warning(f"No usable data found for {city_name}. Marking skipped.")
         skipped.append(city_name)
 
-# ==========================================
-# 6. Summary Report
-# ==========================================
+
 log.info("\n========== FETCH COMPLETE ==========")
 log.info(f"Total API calls made : {calls_today}")
 log.info(f"Cities skipped       : {len(skipped)}  → {skipped}")
